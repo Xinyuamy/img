@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>动态图标与坐标和音量</title>
+<style>
+  
+  #app { float: left;
+    display: none; /* 初始隐藏内容 */
+    height: 30px;
+  }
+#volume{
+  display: inline-block;
+  width: 100px;
+  height: 30px;
+  line-height: 30px;
+}
+  #speaker-icon {
+    float: left;
+     
+    cursor: pointer; /* 添加鼠标悬停时的手形指针效果 */
+    font-size: 24px; /* 调整图标大小 */
+    width: 30px;
+  }
+
+  #coordinates, #volume {
+     
+    width: 100px;
+  }
+
+  #icon-container {
+    display: inline-block;
+    width: 180px;
+    background-size: contain;
+    position: relative;
+    height: 30px; /* 确保容器高度足够显示图标 */
+    background-image: url('speaker-icon-2.png');
+  }
+
+  .icon {
+    width: 20px;
+    border-radius: 20px;
+    position: absolute;
+    opacity: 1;
+    height: 30px;
+    text-align: center;
+     
+    line-height: 30px;
+    background-color: aquamarine;
+  }
+
+  @keyframes slideAndFade {
+    0% {
+      transform: translateX(0);
+      opacity: 1;
+    }
+    100% {
+      transform: translateX(180px);
+      opacity: 0;
+    }
+  }
+
+  .hide {
+    animation: slideAndFade 1s forwards ; /* 应用动画 */
+  }
+</style>
+</head>
+<body>
+<!-- 喇叭图标 -->
+<div id="speaker-icon">🔊</div>
+<!-- 包裹原有内容的容器 -->
+<div id="app">
+  <div id="coordinates"></div>
+  
+  <div id="icon-container"></div>
+  <div id="volume">Volume: 30</div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const app = document.getElementById('app');
+  const speakerIcon = document.getElementById('speaker-icon');
+  speakerIcon.addEventListener('click', () => {
+    // 切换内容的显示状态
+    app.style.display = app.style.display === 'none' ? 'block' : 'none';
+  });
+
+  const iconContainer = document.getElementById('icon-container');
+  const coordinatesDisplay = document.getElementById('coordinates');
+  const volumeDisplay = document.getElementById('volume');
+  let currentIcon = null; // 用于追踪当前移动的图标
+  let volume = 30; // 初始音量值
+
+  function addAndAnimateIcon() {
+    const icon = document.createElement('span');
+    icon.className = 'icon';
+    icon.textContent = Math.random() > 0.5 ? '+' : '−';
+    
+    iconContainer.appendChild(icon);
+    currentIcon = icon; // 更新当前图标
+
+    setTimeout(() => {
+      icon.classList.add('hide');
+      icon.addEventListener('animationend', () => {
+        if (icon === currentIcon) {
+          currentIcon = null; // 清除对当前图标的引用
+        }
+        icon.remove();
+      });
+    }, 0); // 动画触发延迟
+  }
+
+  document.addEventListener('keydown', (e) => {
+    if (e.code === 'Space' && currentIcon) {
+      let iconRect = currentIcon.getBoundingClientRect();
+     // coordinatesDisplay.textContent = `X坐标: ${iconRect.left.toFixed(0)}`;
+      
+      if (iconRect.left >= 100 && iconRect.left <= 140) {
+        if (currentIcon.textContent === '+') {
+          volume += 5;
+        } else if (currentIcon.textContent === '−') {
+          volume -= 5;
+        }
+        volumeDisplay.textContent = `Volume: ${volume}`;
+      }
+    }
+  });
+
+  // 初始添加图标
+  addAndAnimateIcon();
+
+  // 根据随机间隔重复添加图标
+  setInterval(addAndAnimateIcon, getRandomInterval());
+});
+
+function getRandomInterval() {
+  // 返回一个1到3秒（1000到3000毫秒）的随机间隔
+  return Math.random() * 1000 + 500;
+}
+</script>
+</body>
+</html>
+
